@@ -153,13 +153,32 @@ void keyPressed()
      if(_cameraToggle){_cameraRunning = _camera2;}
      else{_cameraRunning = _camera1;}
    }
-
+   
+   if(key == CODED)
+  {
+   else if(key == UP)
+   {
+     _frame_delay++;
+     //maximum frame value is _frame_count
+     if(_frame_delay > _frame_count){_frame_delay = _frame_count;}
+     println(_frame_delay);
+   }
+   else if(key == DOWN)
+   {
+     _frame_delay--;
+     //keep frame delay to at least 1;
+    if(_frame_delay < 1){_frame_delay = 1; }
+    println(_frame_delay);
+   }
+  }
 }
 
 //MIDI FUNCTIONS
 
 //BUTTONS
 void noteOn(int channel, int pitch, int velocity) {
+  
+  println(pitch);
   
   //black draw type
   if(pitch == 40)
