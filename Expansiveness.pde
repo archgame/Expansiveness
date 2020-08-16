@@ -28,14 +28,20 @@ int _frame_count = 26;
 String _cam1Check = "";
 String _cam2Check = "";
 
+PGraphics resized;
+float _pixelation = 0;
+
 void setup()
 {
   MidiBus.list(); // List all available Midi devices on STDOUT. This will show each device's index and name.
   _myBus = new MidiBus(this, 0, 0); // Create a new MidiBus with no input device and the default Java Sound Synthesizer as the output device.
-  //fullScreen(3);
-  size(640, 480, P3D);
-  colorMode(HSB, 255);
 
+  //fullScreen(3); //change this if it is not on the correct screen
+  size(640, 480); //P3D, messes up anti-aliasing
+  noSmooth(); //remove aliasing
+
+  colorMode(HSB, 255);
+  
   String[] cameras = Capture.list();
   
   //guard statement for no camera input
@@ -97,6 +103,18 @@ void draw()
     {
       blend(_frames[_index_draw], 0, 0, int(width/_scale), int(height/_scale), int(width*(_scaleX-1)/-3), int(height*(_scaleY-1)/-3), int(width*_scaleX), int(height*_scaleY), OVERLAY);
     }
+    
+    if(_pixelation > 0)
+    {             
+        int cols = int((width/_scale) / _pixelation);
+        int rows = int((width/_scale) / _pixelation);
+        //draw video resized smaller into a buffer
+        resized = createGraphics(cols, rows);
+        resized.beginDraw();
+        resized.image(get(),0,0,cols,rows);
+        resized.endDraw();
+        image(resized,0,0,int(width/_scale),int(height/_scale));
+    }
   }
   else
   {
@@ -153,23 +171,36 @@ void keyPressed()
      if(_cameraToggle){_cameraRunning = _camera2;}
      else{_cameraRunning = _camera1;}
    }
-   
-   if(key == CODED)
+  
+  //Coded keys
+  if(key == CODED)
   {
-   else if(key == UP)
-   {
-     _frame_delay++;
-     //maximum frame value is _frame_count
-     if(_frame_delay > _frame_count){_frame_delay = _frame_count;}
-     println(_frame_delay);
-   }
-   else if(key == DOWN)
-   {
-     _frame_delay--;
-     //keep frame delay to at least 1;
-    if(_frame_delay < 1){_frame_delay = 1; }
-    println(_frame_delay);
-   }
+    //delay frame
+     if(keyCode == UP)
+     {
+       _frame_delay++;
+       //maximum frame value is _frame_count
+       if(_frame_delay > _frame_count){_frame_delay = _frame_count;}
+     }
+     else if(keyCode == DOWN)
+     {
+       _frame_delay--;
+       //keep frame delay to at least 1;
+      if(_frame_delay < 1){_frame_delay = 1; }
+     }
+     
+     if(keyCode == RIGHT)
+     {
+       _pixelation++;
+       //maximum frame value is _frame_count
+       if(_pixelation > 64){_pixelation = 64;}
+     }
+     else if(keyCode == LEFT)
+     {
+       _pixelation--;
+       //keep frame delay to at least 1;
+      if(_pixelation < 0){_pixelation = 0; }
+     }
   }
 }
 
@@ -206,6 +237,8 @@ void noteOn(int channel, int pitch, int velocity) {
 //KNOBS
 void controllerChange(int channel, int number, int value) {
   
+  println(number);
+  
   //number: 9 = delay, 15 = xScale, 16 = yScale
   if(number == 15 || number == 16)
   {
@@ -222,5 +255,14 @@ void controllerChange(int channel, int number, int value) {
     
     //keep frame delay to at least 1;
     if(_frame_delay < 1){_frame_delay = 1; }
+  }
+  
+  else if(number == 10)
+  {
+    //midi values go up to 127
+    _pixelation = value/2.0;
+    
+    //keep frame delay to at least 1;
+    if(_pixelation < 0){_pixelation = 0; }
   }
 }
