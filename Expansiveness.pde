@@ -3,6 +3,7 @@ import themidibus.*;
 
 String _cam1Name = "name=HD Pro Webcam C920,size=1920x1080,fps=30";
 String _cam2Name = "name=HD Pro Webcam C920 #2,size=1920x1080,fps=30";
+int screen = 1; //change this to make the script run on a different projector
 
 Capture _camera1;
 Capture _camera2;
@@ -36,8 +37,9 @@ void setup()
   MidiBus.list(); // List all available Midi devices on STDOUT. This will show each device's index and name.
   _myBus = new MidiBus(this, 0, 0); // Create a new MidiBus with no input device and the default Java Sound Synthesizer as the output device.
 
-  //fullScreen(3); //change this if it is not on the correct screen
+  //fullScreen(screen);
   size(640, 480); //P3D, messes up anti-aliasing
+
   noSmooth(); //remove aliasing
 
   colorMode(HSB, 255);
@@ -54,9 +56,9 @@ void setup()
     //list out all the cameras so we can see what is available
     println(i + " camera:"+cameras[i]);
     //Set camera 1 by name
-    if(cameras[i].equals(_cam1Name)){_cam1 = i;}
+    if(cameras[i].equals(_cam1Name)){println("SET"); _cam1 = i;}
     //set camera 2 by name
-    else if(cameras[i].equals(_cam2Name)){_cam2 = i;}
+    else if(cameras[i].equals(_cam2Name)){println("SET"); _cam2 = i;}
     
   } 
   
